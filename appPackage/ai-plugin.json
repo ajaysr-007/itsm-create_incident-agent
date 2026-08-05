@@ -1,0 +1,77 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.4/schema.json",
+    "schema_version": "v2.4",
+    "name_for_human": "BotIQ ITSM API",
+    "description_for_human": "ITSM incident management APIs used by the M365 Copilot ITSM Agent.",
+    "description_for_model": "ITSM incident management APIs used by the M365 Copilot ITSM Agent.",
+    "contact_email": "support@botiq.com",
+    "namespace": "itsmcreateincidentagent",
+    "capabilities": {},
+    "functions": [
+        {
+            "name": "createIncident",
+            "description": "Creates a new ITSM incident after all mandatory information has been collected. Before calling this operation, ensure title, description, and requester_user_account_id are available. Use Medium as the default priority, L2 as the default support tier, and Copilot as the intake channel unless the user explicitly specifies different values. asset_id is optional — pass null if the user did not provide one. Never ask the user for asset_id.\n",
+            "capabilities": {
+                "response_semantics": {
+                    "data_path": "$",
+                    "properties": {
+                        "title": "$.response_body.incident_number",
+                        "subtitle": "$.response_body.incident_status"
+                    },
+                    "static_template": {
+                        "file": "adaptiveCards/createIncident.json"
+                    }
+                }
+            }
+        },
+        {
+            "name": "getCurrentUser",
+            "description": "Triggers the ITSM OAuth login popup and returns the logged-in user's full name, email, and all accessible accounts from their Bearer token. ALWAYS call this FIRST when any user interaction begins. No parameters required. Use the returned accounts array for account selection and the corresponding account_id when creating incidents.",
+            "capabilities": {
+                "response_semantics": {
+                    "data_path": "$",
+                    "properties": {
+                        "title": "$.response_body.full_name",
+                        "subtitle": "$.response_body.email"
+                    },
+                    "static_template": {
+                        "file": "adaptiveCards/validateSsoTokenAndGetAccounts1.json"
+                    }
+                }
+            }
+        },
+        {
+            "name": "validateSsoTokenAndGetAccounts",
+            "description": "Validates the Microsoft 365 SSO authentication code and returns the authenticated user&apos;s access token, account scope, and all accessible accounts. Always call this first before creating an incident to identify the accounts the user can create incidents for. Use the returned account_name for account selection and the corresponding account_id when creating the incident. If only one account is returned, use it automatically without asking the user. If multiple accounts are returned and the user has not specified one, ask the user to choose an account.\n",
+            "capabilities": {
+                "response_semantics": {
+                    "data_path": "$",
+                    "properties": {
+                        "title": "$.response_body.full_name",
+                        "subtitle": "$.response_body.email"
+                    },
+                    "static_template": {
+                        "file": "adaptiveCards/validateSsoTokenAndGetAccounts1.json"
+                    }
+                }
+            }
+        }
+    ],
+    "runtimes": [
+        {
+            "type": "OpenApi",
+            "auth": {
+                "type": "OAuthPluginVault",
+                "reference_id": "${{BEARERAUTH_REGISTRATION_ID}}"
+            },
+            "spec": {
+                "url": "apiSpecificationFile/openapi.yaml"
+            },
+            "run_for_functions": [
+                "getCurrentUser",
+                "validateSsoTokenAndGetAccounts",
+                "createIncident"
+            ]
+        }
+    ]
+}

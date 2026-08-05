@@ -1,0 +1,89 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "Container",
+            "style": "emphasis",
+            "bleed": true,
+            "items": [
+                {
+                    "type": "TextBlock",
+                    "text": "🔐 Authentication Successful",
+                    "weight": "Bolder",
+                    "size": "Medium",
+                    "color": "Good",
+                    "wrap": true
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "spacing": "Medium",
+            "items": [
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {
+                            "title": "Name",
+                            "value": "${if(response_body.full_name, response_body.full_name, 'N/A')}"
+                        },
+                        {
+                            "title": "Email",
+                            "value": "${if(response_body.email, response_body.email, 'N/A')}"
+                        },
+                        {
+                            "title": "Account Scope",
+                            "value": "${if(response_body.account_scope, response_body.account_scope, 'N/A')}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "Accessible Accounts",
+            "weight": "Bolder",
+            "size": "Small",
+            "spacing": "Medium",
+            "wrap": true
+        },
+        {
+            "type": "Container",
+            "spacing": "Small",
+            "$data": "${response_body.accounts}",
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "width": "stretch",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "${account_name}",
+                                    "weight": "Bolder",
+                                    "wrap": true
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Column",
+                            "width": "auto",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "${user_role}",
+                                    "color": "Accent",
+                                    "wrap": true
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,238 @@
+openapi: 3.0.4
+info:
+  title: BotIQ ITSM API - Subset - Subset - Subset
+  description: ITSM incident management APIs used by the M365 Copilot ITSM Agent.
+  version: 1.0.0
+servers:
+  - url: https://bmfunitsmuat-gdbtbcb5bnaugddf.centralindia-01.azurewebsites.net/api
+    description: Azure Functions base URL for the ITSM backend
+paths:
+  /get_current_user_auth_api:
+    post:
+      summary: Get the logged-in user's profile (OAuth popup trigger)
+      description: >
+        ALWAYS call this FIRST. It triggers the ITSM OAuth login popup via OAuthPluginVault
+        so the user can sign in. No parameters are required.
+        Returns response_body.users[] — a list of users in the account.
+        The logged-in user's entry is identified by auth_provider = "SSO" and their M365 email.
+        Extract the matching user's user_account_id and store it as requester_user_account_id
+        to be passed to createIncident. Also store the user_role to determine agent behaviour.
+      operationId: getCurrentUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: User list retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  status_description:
+                    type: string
+                    example: SUCCESS
+                  error_message:
+                    type: string
+                    example: ''
+                  response_body:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        description: List of users in the account. Find the logged-in user by matching auth_provider=SSO and their email. Use that user's user_account_id as requester_user_account_id in createIncident.
+                        items:
+                          type: object
+                          properties:
+                            user_account_id:
+                              type: string
+                              description: The unique ID of the user. Pass the logged-in user's value as requester_user_account_id to createIncident.
+                              example: 8d52095d-d272-441e-8b35-0f20f42118c0
+                            email:
+                              type: string
+                              example: ajay.shankar@botmantra.com
+                            full_name:
+                              type: string
+                              example: Ajay
+                            user_role:
+                              type: string
+                              example: Admin
+                            auth_provider:
+                              type: string
+                              example: SSO
+      security:
+        - bearerAuth:
+            - read
+      x-openai-isConsequential: false
+  /validate_sso_token_auth_api:
+    post:
+      summary: Authenticate the signed-in user and retrieve accessible accounts
+      description: "Validates the Microsoft 365 SSO authentication code and returns the authenticated user's access token, account scope, and all accessible accounts. Always call this first before creating an incident to identify the accounts the user can create incidents for. Use the returned account_name for account selection and the corresponding account_id when creating the incident. If only one account is returned, use it automatically without asking the user. If multiple accounts are returned and the user has not specified one, ask the user to choose an account.\n"
+      operationId: validateSsoTokenAndGetAccounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - sso_auth_code
+              type: object
+              properties:
+                sso_auth_code:
+                  type: string
+                  description: Microsoft 365 SSO authorization code.
+        required: true
+      responses:
+        "200":
+          description: User authenticated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  status_description:
+                    type: string
+                    example: SUCCESS
+                  error_message:
+                    type: string
+                    example: ""
+                  response_body:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+                      email:
+                        type: string
+                      full_name:
+                        type: string
+                      account_scope:
+                        type: string
+                        example: LIST
+                      accounts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            account_id:
+                              type: string
+                              example: 96dfbadc-079a-4d32-80a7-c4235d3173a3
+                            account_name:
+                              type: string
+                              example: Naffco
+                            user_role:
+                              type: string
+                              example: Admin
+      x-openai-isConsequential: false
+  /create_incident_incident_api:
+    post:
+      summary: Create a new ITSM incident
+      description: "Creates a new ITSM incident after all mandatory information has been collected. Before calling this operation, ensure title, description, and requester_user_account_id are available. Use Medium as the default priority, L2 as the default support tier, and Copilot as the intake channel unless the user explicitly specifies different values. asset_id is optional — pass null if not provided.\n"
+      operationId: createIncident
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - title
+                - description
+                - priority
+                - support_tier
+                - intake_channel
+                - requester_user_account_id
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Concise title of the incident.
+                description:
+                  type: string
+                  description: Detailed description of the issue.
+                priority:
+                  enum:
+                    - Low
+                    - Medium
+                    - High
+                    - Critical
+                  type: string
+                  example: Medium
+                support_tier:
+                  enum:
+                    - L1
+                    - L2
+                    - L3
+                  type: string
+                  example: L2
+                intake_channel:
+                  type: string
+                  example: Copilot
+                asset_id:
+                  type: string
+                  description: Optional asset identifier related to the incident. Pass null if the user did not provide one. Do not ask the user for it.
+                  nullable: true
+                account_id:
+                  type: string
+                  description: Required only for Leadership users.
+                  nullable: true
+                requester_user_account_id:
+                  type: string
+                  description: Pass the selected account_id.
+                auto_assign:
+                  type: boolean
+                  default: false
+        required: true
+      responses:
+        "201":
+          description: Incident created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 201
+                  status_description:
+                    type: string
+                    example: CREATED
+                  error_message:
+                    type: string
+                    example: ""
+                  response_body:
+                    type: object
+                    properties:
+                      incident_id:
+                        type: string
+                      incident_number:
+                        type: string
+                        example: INC-000482
+                      incident_status:
+                        type: string
+                        example: Unassigned
+                      assigned_engineer_user_account_id:
+                        type: string
+                        nullable: true
+      security:
+        - bearerAuth:
+            - write
+      x-openai-isConsequential: false
+components:
+  securitySchemes:
+    bearerAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://bmfunitsmuat-gdbtbcb5bnaugddf.centralindia-01.azurewebsites.net/api/oauth_authorize_api
+          tokenUrl: https://bmfunitsmuat-gdbtbcb5bnaugddf.centralindia-01.azurewebsites.net/api/oauth_token_api
+          refreshUrl: https://bmfunitsmuat-gdbtbcb5bnaugddf.centralindia-01.azurewebsites.net/api/oauth_token_api
+          scopes:
+            read: Read incidents and SLA data
+            write: Create and update incidents

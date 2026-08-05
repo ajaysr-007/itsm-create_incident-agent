@@ -1,0 +1,56 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "Container",
+            "style": "emphasis",
+            "bleed": true,
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "width": "stretch",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "✅ Incident Created Successfully",
+                                    "weight": "Bolder",
+                                    "size": "Medium",
+                                    "color": "Good",
+                                    "wrap": true
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "spacing": "Medium",
+            "items": [
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {
+                            "title": "Incident Number",
+                            "value": "${if(response_body.incident_number, response_body.incident_number, 'N/A')}"
+                        },
+                        {
+                            "title": "Status",
+                            "value": "${if(response_body.incident_status, response_body.incident_status, 'N/A')}"
+                        },
+                        {
+                            "title": "Assigned To",
+                            "value": "${if(response_body.assigned_engineer_user_account_id, response_body.assigned_engineer_user_account_id, 'Unassigned')}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
