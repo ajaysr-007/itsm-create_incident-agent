@@ -9,12 +9,36 @@
             "bleed": true,
             "items": [
                 {
-                    "type": "TextBlock",
-                    "text": "🔐 Authentication Successful",
-                    "weight": "Bolder",
-                    "size": "Medium",
-                    "color": "Good",
-                    "wrap": true
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "width": "auto",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "🔐",
+                                    "size": "Large"
+                                }
+                            ],
+                            "verticalContentAlignment": "Center"
+                        },
+                        {
+                            "type": "Column",
+                            "width": "stretch",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Authentication Successful",
+                                    "weight": "Bolder",
+                                    "size": "Medium",
+                                    "color": "Good",
+                                    "wrap": true
+                                }
+                            ],
+                            "verticalContentAlignment": "Center"
+                        }
+                    ]
                 }
             ]
         },
@@ -75,7 +99,7 @@
                             "items": [
                                 {
                                     "type": "TextBlock",
-                                    "text": "${user_role}",
+                                    "text": "${if(role, role, if(user_role, user_role, ''))}",
                                     "color": "Accent",
                                     "wrap": true
                                 }

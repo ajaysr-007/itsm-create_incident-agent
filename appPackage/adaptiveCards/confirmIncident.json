@@ -64,18 +64,6 @@
                             "value": "${description}"
                         },
                         {
-                            "title": "Priority",
-                            "value": "${priority}"
-                        },
-                        {
-                            "title": "Support Tier",
-                            "value": "${support_tier}"
-                        },
-                        {
-                            "title": "Intake Channel",
-                            "value": "${intake_channel}"
-                        },
-                        {
                             "title": "Account",
                             "value": "${account_name}"
                         }

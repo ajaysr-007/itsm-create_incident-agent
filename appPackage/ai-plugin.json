@@ -55,6 +55,19 @@
                     }
                 }
             }
+        },
+        {
+            "name": "getAccountUsers",
+            "description": "Lists all active users within a specific account. Call this after the account is selected, passing the selected account_id. Find the logged-in user by matching auth_provider = 'SSO'. Use that user's user_account_id as requester_user_account_id when calling createIncident. This is the ONLY reliable source for the correct account-scoped user_account_id.",
+            "capabilities": {
+                "response_semantics": {
+                    "data_path": "$",
+                    "properties": {
+                        "title": "$.response_body.users[0].account_name",
+                        "subtitle": "$.status_description"
+                    }
+                }
+            }
         }
     ],
     "runtimes": [
@@ -70,6 +83,7 @@
             "run_for_functions": [
                 "getCurrentUser",
                 "validateSsoTokenAndGetAccounts",
+                "getAccountUsers",
                 "createIncident"
             ]
         }

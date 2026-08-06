@@ -128,6 +128,9 @@ paths:
                             account_name:
                               type: string
                               example: Naffco
+                            role:
+                              type: string
+                              example: Admin
                             user_role:
                               type: string
                               example: Admin
@@ -184,7 +187,7 @@ paths:
                   nullable: true
                 requester_user_account_id:
                   type: string
-                  description: Pass the selected account_id.
+                  description: The user_account_id of the logged-in user within the selected account. Obtained by calling getAccountUsers with the selected account_id and finding the entry where auth_provider = 'SSO'. Do NOT use account_id here — this is the user's membership ID within the account.
                 auto_assign:
                   type: boolean
                   default: false
@@ -223,6 +226,84 @@ paths:
       security:
         - bearerAuth:
             - write
+      x-openai-isConsequential: false
+  /get_account_users_auth_api:
+    post:
+      summary: List active users in a specific account
+      description: >
+        Returns all active users within the given account_id.
+        ALWAYS call this after the account is selected and before calling createIncident.
+        Find the logged-in user by matching auth_provider = "SSO" and their email.
+        Use that user's user_account_id as requester_user_account_id in createIncident.
+        This is critical — user_account_id is account-scoped and must come from this endpoint
+        for the correct account, NOT from getCurrentUser, to avoid membership errors.
+      operationId: getAccountUsers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_id:
+                  type: string
+                  description: The account_id of the selected account. Pass the account_id chosen by the user.
+                  example: 96dfbadc-079a-4d32-80a7-c4235d3173a3
+      responses:
+        '200':
+          description: User list retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    example: 200
+                  status_description:
+                    type: string
+                    example: SUCCESS
+                  error_message:
+                    type: string
+                    example: ''
+                  response_body:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        description: >
+                          List of users in the account. Find the logged-in user by matching
+                          auth_provider = "SSO". Use that user's user_account_id as
+                          requester_user_account_id when calling createIncident.
+                        items:
+                          type: object
+                          properties:
+                            user_account_id:
+                              type: string
+                              description: Account-scoped user ID. Pass this as requester_user_account_id to createIncident.
+                              example: 8d52095d-d272-441e-8b35-0f20f42118c0
+                            account_id:
+                              type: string
+                              example: 96dfbadc-079a-4d32-80a7-c4235d3173a3
+                            account_name:
+                              type: string
+                              example: Naffco
+                            email:
+                              type: string
+                              example: ajay.shankar@botmantra.com
+                            full_name:
+                              type: string
+                              example: Ajay
+                            user_role:
+                              type: string
+                              example: Admin
+                            auth_provider:
+                              type: string
+                              description: SSO means Microsoft 365 login. Use this to identify the logged-in user.
+                              example: SSO
+      security:
+        - bearerAuth:
+            - read
       x-openai-isConsequential: false
 components:
   securitySchemes:
