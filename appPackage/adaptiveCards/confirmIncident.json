@@ -1,0 +1,94 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "Container",
+            "style": "warning",
+            "bleed": true,
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "width": "auto",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "🎫",
+                                    "size": "Large"
+                                }
+                            ],
+                            "verticalContentAlignment": "Center"
+                        },
+                        {
+                            "type": "Column",
+                            "width": "stretch",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Confirm Incident Creation",
+                                    "weight": "Bolder",
+                                    "size": "Medium",
+                                    "wrap": true
+                                },
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Please review the details below before submitting.",
+                                    "isSubtle": true,
+                                    "size": "Small",
+                                    "wrap": true
+                                }
+                            ],
+                            "verticalContentAlignment": "Center"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "spacing": "Medium",
+            "items": [
+                {
+                    "type": "FactSet",
+                    "facts": [
+                        {
+                            "title": "Title",
+                            "value": "${title}"
+                        },
+                        {
+                            "title": "Description",
+                            "value": "${description}"
+                        },
+                        {
+                            "title": "Priority",
+                            "value": "${priority}"
+                        },
+                        {
+                            "title": "Support Tier",
+                            "value": "${support_tier}"
+                        },
+                        {
+                            "title": "Intake Channel",
+                            "value": "${intake_channel}"
+                        },
+                        {
+                            "title": "Account",
+                            "value": "${account_name}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "Do you want to create this incident?",
+            "weight": "Bolder",
+            "spacing": "Medium",
+            "wrap": true
+        }
+    ]
+}

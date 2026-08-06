@@ -5,7 +5,7 @@
     "instructions": "$[file('instruction.txt')]",
     "conversation_starters": [
         {
-            "text": "1.4 I need to raise an incident — my laptop screen is broken"
+            "text": "I need to raise an incident — my laptop screen is broken"
         },
         {
             "text": "Create a high priority incident: Email server is down"
